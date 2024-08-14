@@ -1,6 +1,5 @@
-x = 0
-while x < 20
-  x += 1
+#!/usr/bin/env ruby
+Range.new(1, 20).each{|x|
   if x % 3 == 0 && x % 5 == 0
     puts "FizzBuzz"
   elsif x % 3 == 0
@@ -10,4 +9,4 @@ while x < 20
   else
     puts x
   end
-end
+}
