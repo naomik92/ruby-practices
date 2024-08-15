@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-Range.new(1, 20).each{|x|
+(1..20).each{|x|
   if x % 3 == 0 && x % 5 == 0
     puts "FizzBuzz"
   elsif x % 3 == 0
