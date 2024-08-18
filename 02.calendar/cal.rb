@@ -3,53 +3,43 @@ require 'optparse'
 options = ARGV.getopts('y:', 'm:')
 
 require 'date'
-t = Date.today
 
+today_year = 
 if options['y'] == nil
-  t_year = t.year
+  Date.today.year
 else
-  t_year = options['y'].to_i
+  options['y'].to_i
 end
 
+today_month =
 if options['m'] == nil
-  t_month = t.mon
+  Date.today.mon
 else
-  t_month = options['m'].to_i
+  options['m'].to_i
 end
 
-t_lastday = Date.new(t_year, t_month, -1).mday
+first_date = Date.new(today_year, today_month, 1)
+last_date = Date.new(today_year, today_month, -1)
 
 # カレンダーの日付部分の配列を生成
-x = Date.new(t_year, t_month, 1).cwday
-enum = Enumerator.new{|y|
-  (1..x).each{|i|
-    if x == 7
-      break
-    else
-      y << i
-    end
-  }  
+blank = []
+if first_date.cwday != 7
+  first_date.cwday.times {blank.push("".rjust(3))}
+end
+
+dates = []
+(first_date..last_date).map{|date|
+  dates << date.day.to_s.rjust(3)
 }
-arr1 =  enum.map{|i| "   " }.to_a
-enum2 = Enumerator.new{|z|
-  (1..t_lastday).each{|j|
-    if j < 10
-      z << " #{j} "
-    else
-      z << "#{j} "
-    end
-  }
-}
-arr2 = enum2.to_a
-arr = arr1 + arr2
+
+blank_and_dates = blank + dates
 
 #　カレンダーの表示
-puts "      #{t_month}月 #{t_year}\n"
-puts "日 月 火 水 木 金 土\n"
-arr.each_index{|a|
-  if a % 7 == 0 && a != 0
-    print "\n" + arr[a]
-  else
-    print arr[a]
+puts "       #{today_month}月 #{today_year}\n"
+puts " 日 月 火 水 木 金 土\n"
+blank_and_dates.each_with_index{|str, index|  
+  print str
+  if (index - 6) % 7 == 0
+    print "\n"
   end
 }
