@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+STRIKE_SCORE = 10
 score = ARGV[0]
 scores = score.split(',')
 shots = []
@@ -16,7 +17,6 @@ end
 frames = shots.each_slice(2).to_a
 
 point = 0
-STRIKE_SCORE = 10
 frames.each_with_index do |frame, idx|
   point += frame.sum
   if idx >= 9
