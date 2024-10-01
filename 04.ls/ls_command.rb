@@ -13,12 +13,7 @@ def main
   opt.parse(ARGV)
 
   all_files = find_all_files
-  visible_files =
-    if !options[:a]
-      select_visible_files(all_files)
-    else
-      all_files
-    end
+  visible_files = options[:a] ? all_files : select_visible_files(all_files)
   display_files(visible_files)
 end
 
