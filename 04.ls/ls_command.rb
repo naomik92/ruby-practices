@@ -1,11 +1,19 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 COL_COUNT = 3
 
 def main
+  opt = OptionParser.new
+
+  options = {}
+  opt.on('-a') { |v| options[:a] = v }
+  opt.parse(ARGV)
+
   all_files = find_all_files
-  visible_files = select_visible_files(all_files)
+  visible_files = options[:a] ? all_files : select_visible_files(all_files)
   display_files(visible_files)
 end
 
