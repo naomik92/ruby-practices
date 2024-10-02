@@ -10,11 +10,13 @@ def main
 
   options = {}
   opt.on('-a') { |v| options[:a] = v }
+  opt.on('-r') { |v| options[:r] = v }
   opt.parse(ARGV)
 
   all_files = find_all_files
   visible_files = options[:a] ? all_files : select_visible_files(all_files)
-  display_files(visible_files)
+  reverse_visible_files = visible_files.reverse if options[:r]
+  display_files(reverse_visible_files || visible_files)
 end
 
 def find_all_files
