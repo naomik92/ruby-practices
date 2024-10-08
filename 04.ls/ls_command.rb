@@ -15,8 +15,8 @@ def main
 
   all_files = find_all_files
   visible_files = options[:a] ? all_files : select_visible_files(all_files)
-  sort_files = options[:r] ? visible_files.reverse : visible_files
-  display_files(sort_files)
+  sorted_files = options[:r] ? visible_files.reverse : visible_files
+  display_files(sorted_files)
 end
 
 def find_all_files
