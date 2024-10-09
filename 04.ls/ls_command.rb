@@ -45,17 +45,37 @@ end
 
 def display_files_detail(files)
   fs = File::Stat.new('/Users/naomikomiya/ruby-practices')
-
+  file_type = fs.ftype
   file_mode = fs.mode.to_s(8).rjust(6, '0')
   
   file_permission = file_mode[3, 3].chars.map do |user_type_octal|
     sprintf('%b', user_type_octal).chars
   end
 
+  display_filetype(file_type)
   file_permission.each do |user_type_binary|
     print user_type_binary[0] == '1' ? 'r' : '-'
     print user_type_binary[1] == '1' ? 'w' : '-'
     print user_type_binary[2] == '1' ? 'x' : '-'
+  end
+end
+
+def display_filetype(file_type)
+  case file_type
+  when 'directory'
+    print 'd'
+  when 'characterSpecial'
+    print 'c'
+  when 'blockSpecial'
+    print 'b'
+  when 'fifo'
+    print 'p'
+  when 'link'
+    print 'l'
+  when 'socket'
+    print 's'
+  else
+    print '-'
   end
 end
 
