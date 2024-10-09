@@ -43,4 +43,20 @@ def display_files(files)
   end
 end
 
+def display_files_detail(files)
+  fs = File::Stat.new('/Users/naomikomiya/ruby-practices')
+
+  file_mode = fs.mode.to_s(8).rjust(6, '0')
+  
+  file_permission = file_mode[3, 3].chars.map do |user_type_octal|
+    sprintf('%b', user_type_octal).chars
+  end
+
+  file_permission.each do |user_type_binary|
+    print user_type_binary[0] == '1' ? 'r' : '-'
+    print user_type_binary[1] == '1' ? 'w' : '-'
+    print user_type_binary[2] == '1' ? 'x' : '-'
+  end
+end
+
 main
