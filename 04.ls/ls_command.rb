@@ -11,12 +11,13 @@ def main
   options = {}
   opt.on('-a') { |v| options[:a] = v }
   opt.on('-r') { |v| options[:r] = v }
+  opt.on('-l') { |v| options[:l] = v }
   opt.parse(ARGV)
 
   all_files = find_all_files
   visible_files = options[:a] ? all_files : select_visible_files(all_files)
   sorted_files = options[:r] ? visible_files.reverse : visible_files
-  display_files(sorted_files)
+  options[:l] ? display_files_detail(sorted_files) : display_files(sorted_files)
 end
 
 def find_all_files
@@ -44,19 +45,33 @@ def display_files(files)
 end
 
 def display_files_detail(files)
-  fs = File::Stat.new('/Users/naomikomiya/ruby-practices')
-  file_type = fs.ftype
-  file_mode = fs.mode.to_s(8).rjust(6, '0')
-  
-  file_permission = file_mode[3, 3].chars.map do |user_type_octal|
-    sprintf('%b', user_type_octal).chars
-  end
+  files.each do |file|
+    fs = File::Stat.new(file)
+    file_type = fs.ftype
+    file_mode = fs.mode.to_s(8).rjust(6, '0')
+    file_permission = file_mode[3, 3].chars.map do |user_type_octal|
+      format('%b', user_type_octal).rjust(3, '0').chars
+    end
 
-  display_filetype(file_type)
-  file_permission.each do |user_type_binary|
-    print user_type_binary[0] == '1' ? 'r' : '-'
-    print user_type_binary[1] == '1' ? 'w' : '-'
-    print user_type_binary[2] == '1' ? 'x' : '-'
+    if fs.setuid?
+      file_permission[0][2] = (file_permission[0][2] == '1' ? 's' : 'S')
+    elsif fs.setgid?
+      file_permission[1][2] = (file_permission[1][2] == '1' ? 's' : 'S')
+    elsif fs.sticky?
+      file_permission[2][2] = (file_permission[2][2] == '1' ? 't' : 'T')
+    end
+
+    display_filetype(file_type)
+    file_permission.each do |user_type_binary|
+      print user_type_binary[0] == '1' ? 'r' : '-'
+      print user_type_binary[1] == '1' ? 'w' : '-'
+      if user_type_binary[2] != '1' && user_type_binary[2] != '0'
+        print user_type_binary[2]
+      else
+        print user_type_binary[2] == '1' ? 'x' : '-'
+      end
+    end
+    print "\n"
   end
 end
 
