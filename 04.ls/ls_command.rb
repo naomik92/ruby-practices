@@ -46,32 +46,26 @@ end
 
 def display_files_detail(files)
   files.each do |file|
-    fs = File::Stat.new(file)
-    file_type = fs.ftype
-    file_mode = fs.mode.to_s(8).rjust(6, '0')
+    file_information = File::Stat.new(file)
+    file_type = file_information.ftype
+    file_mode = file_information.mode.to_s(8).rjust(6, '0')
     file_permission = file_mode[3, 3].chars.map do |user_type_octal|
       format('%b', user_type_octal).rjust(3, '0').chars
     end
 
-    if fs.setuid?
-      file_permission[0][2] = (file_permission[0][2] == '1' ? 's' : 'S')
-    elsif fs.setgid?
-      file_permission[1][2] = (file_permission[1][2] == '1' ? 's' : 'S')
-    elsif fs.sticky?
-      file_permission[2][2] = (file_permission[2][2] == '1' ? 't' : 'T')
-    end
-
+    check_special_permission(file_information, file_permission)
     display_filetype(file_type)
-    file_permission.each do |user_type_binary|
-      print user_type_binary[0] == '1' ? 'r' : '-'
-      print user_type_binary[1] == '1' ? 'w' : '-'
-      if user_type_binary[2] != '1' && user_type_binary[2] != '0'
-        print user_type_binary[2]
-      else
-        print user_type_binary[2] == '1' ? 'x' : '-'
-      end
-    end
-    print "\n"
+    display_file_permission(file_permission)
+  end
+end
+
+def check_special_permission(file_information, permission)
+  if file_information.setuid?
+    permission[0][2] = (permission[0][2] == '1' ? 's' : 'S')
+  elsif file_information.setgid?
+    permission[1][2] = (permission[1][2] == '1' ? 's' : 'S')
+  elsif file_information.sticky?
+    permission[2][2] = (permission[2][2] == '1' ? 't' : 'T')
   end
 end
 
@@ -92,6 +86,19 @@ def display_filetype(file_type)
   else
     print '-'
   end
+end
+
+def display_file_permission(file_permission)
+  file_permission.each do |user_type_binary|
+    print user_type_binary[0] == '1' ? 'r' : '-'
+    print user_type_binary[1] == '1' ? 'w' : '-'
+    if user_type_binary[2] != '1' && user_type_binary[2] != '0'
+      print user_type_binary[2]
+    else
+      print user_type_binary[2] == '1' ? 'x' : '-'
+    end
+  end
+  print "\n"
 end
 
 main
