@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
 COL_COUNT = 3
 
@@ -52,10 +53,16 @@ def display_files_detail(files)
     file_permission = file_mode[3, 3].chars.map do |user_type_octal|
       format('%b', user_type_octal).rjust(3, '0').chars
     end
+    filesize_width = find_files_bytesize(files).max + 2
 
     check_special_permission(file_information, file_permission)
     display_filetype(file_type)
     display_file_permission(file_permission)
+    print file_information.nlink.to_s.rjust(3)
+    print " " + Etc.getpwuid(file_information.uid).name
+    print "  " + Etc.getgrgid(file_information.gid).name
+    print file_information.size.to_s.rjust(filesize_width)
+    print "\n"
   end
 end
 
@@ -98,7 +105,12 @@ def display_file_permission(file_permission)
       print user_type_binary[2] == '1' ? 'x' : '-'
     end
   end
-  print "\n"
+end
+
+def find_files_bytesize(files)
+  files.map do |file|
+    File::Stat.new(file).size.to_s.bytesize
+  end
 end
 
 main
