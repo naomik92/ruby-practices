@@ -46,32 +46,40 @@ def display_files(files)
 end
 
 def display_files_detail(files)
+  file_blocks = files.map do |file|
+    File::Stat.new(file).blocks
+  end
+  print "total #{file_blocks.sum}\n"
+
   files.each do |file|
-    file_information = File::Stat.new(file)
-    file_type = file_information.ftype
-    file_mode = file_information.mode.to_s(8).rjust(6, '0')
+    file_data = File::Stat.new(file)
+    file_type = file_data.ftype
+    file_mode = file_data.mode.to_s(8).rjust(6, '0')
     file_permission = file_mode[3, 3].chars.map do |user_type_octal|
       format('%b', user_type_octal).rjust(3, '0').chars
     end
     filesize_width = find_files_bytesize(files).max + 2
 
-    check_special_permission(file_information, file_permission)
+    check_special_permission(file_data, file_permission)
     display_filetype(file_type)
     display_file_permission(file_permission)
-    print file_information.nlink.to_s.rjust(3)
-    print " " + Etc.getpwuid(file_information.uid).name
-    print "  " + Etc.getgrgid(file_information.gid).name
-    print file_information.size.to_s.rjust(filesize_width)
-    print "\n"
+    print file_data.nlink.to_s.rjust(3)
+    print " #{Etc.getpwuid(file_data.uid).name}"
+    print "  #{Etc.getgrgid(file_data.gid).name}"
+    print file_data.size.to_s.rjust(filesize_width)
+    print file_data.mtime.month.to_s.rjust(3)
+    print file_data.mtime.day.to_s.rjust(3)
+    print file_data.mtime.strftime('%H:%M').rjust(6)
+    print " #{file}\n"
   end
 end
 
-def check_special_permission(file_information, permission)
-  if file_information.setuid?
+def check_special_permission(file_data, permission)
+  if file_data.setuid?
     permission[0][2] = (permission[0][2] == '1' ? 's' : 'S')
-  elsif file_information.setgid?
+  elsif file_data.setgid?
     permission[1][2] = (permission[1][2] == '1' ? 's' : 'S')
-  elsif file_information.sticky?
+  elsif file_data.sticky?
     permission[2][2] = (permission[2][2] == '1' ? 't' : 'T')
   end
 end
