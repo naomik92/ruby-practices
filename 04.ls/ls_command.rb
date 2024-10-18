@@ -3,6 +3,8 @@
 
 require 'optparse'
 require 'etc'
+require 'Date'
+require 'time'
 
 COL_COUNT = 3
 
@@ -58,18 +60,11 @@ def display_files_detail(files)
     file_permission = file_mode[3, 3].chars.map do |user_type_octal|
       format('%b', user_type_octal).rjust(3, '0').chars
     end
-    filesize_width = find_files_bytesize(files).max + 2
 
     check_special_permission(file_data, file_permission)
     display_filetype(file_type)
     display_file_permission(file_permission)
-    print file_data.nlink.to_s.rjust(3)
-    print " #{Etc.getpwuid(file_data.uid).name}"
-    print "  #{Etc.getgrgid(file_data.gid).name}"
-    print file_data.size.to_s.rjust(filesize_width)
-    print file_data.mtime.month.to_s.rjust(3)
-    print file_data.mtime.day.to_s.rjust(3)
-    print file_data.mtime.strftime('%H:%M').rjust(6)
+    display_file_information(files, file_data)
     print " #{file}\n"
   end
 end
@@ -112,6 +107,29 @@ def display_file_permission(file_permission)
     else
       print user_type_binary[2] == '1' ? 'x' : '-'
     end
+  end
+end
+
+def display_file_information(files, file_data)
+  linksize_width = find_links_bytesize(files).max + 2
+  filesize_width = find_files_bytesize(files).max + 2
+
+  print file_data.nlink.to_s.rjust(linksize_width)
+  print " #{Etc.getpwuid(file_data.uid).name}"
+  print "  #{Etc.getgrgid(file_data.gid).name}"
+  print file_data.size.to_s.rjust(filesize_width)
+  print file_data.mtime.month.to_s.rjust(3)
+  print file_data.mtime.day.to_s.rjust(3)
+  if Time.parse(file_data.mtime.to_s).to_date < Date.today << 6
+    print file_data.mtime.year.to_s.rjust(6)
+  else
+    print file_data.mtime.strftime('%H:%M').rjust(6)
+  end
+end
+
+def find_links_bytesize(files)
+  files.map do |file|
+    File::Stat.new(file).nlink.to_s.bytesize
   end
 end
 
