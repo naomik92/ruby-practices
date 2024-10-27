@@ -47,36 +47,39 @@ def display_files(files)
 end
 
 def display_files_detail(files)
-  file_blocks = files.map do |file|
-    File::Stat.new(file).blocks
-  end
-  puts "total #{file_blocks.sum}"
+  files_data = files.map { |file| File::Stat.new(file) }
+  files_detail = Hash[files.zip(files_data)] # new
+  linksize_width = files_data.map(&:nlink).max.to_s.bytesize + 2
+  filesize_width = files_data.map(&:size).max.to_s.bytesize + 2
+  puts "total #{files_data.map(&:blocks).sum}"
 
-  files.each do |file|
-    file_data = File::Stat.new(file)
-    file_type = file_data.ftype
-    file_mode = file_data.mode.to_s(8).rjust(6, '0')
-    file_permission = file_mode[3, 3].chars.map do |user_type_octal|
-      format('%b', user_type_octal).rjust(3, '0').chars
-    end
-
-    display_filetype(file_type)
-    display_file_permission(file_data, file_permission)
-    display_file_data(files, file_data)
+  files_detail.each do |file, file_data|
+    display_filetype(file_data)
+    display_file_permission(file_data)
+    print file_data.nlink.to_s.rjust(linksize_width)
+    print " #{Etc.getpwuid(file_data.uid).name}"
+    print "  #{Etc.getgrgid(file_data.gid).name}"
+    print file_data.size.to_s.rjust(filesize_width)
+    print file_data.mtime.strftime(' %_m %_d')
+    display_file_updated_time(file_data)
     puts " #{file}"
   end
 end
 
-def display_filetype(file_type)
+def display_filetype(file_data)
   file_type_character = { 'file' => '-', 'directory' => 'd', 'characterSpecail' => 'c', 'blockSpecial' => 'b', 'fifo' => 'p', 'link' => 'l', 'socket' => 's' }
-  print file_type_character[file_type] # 変数名の見直しが必要
+  print file_type_character[file_data.ftype]
 end
 
-def display_file_permission(file_data, file_permission)
+def display_file_permission(file_data)
+  file_mode = file_data.mode.to_s(8).rjust(6, '0')
+  file_permission = file_mode[3, 3].chars.map do |user_type_octal|
+    format('%b', user_type_octal).rjust(3, '0').chars
+  end
   file_permission.each_with_index do |user_type_binary, idx|
     print user_type_binary[0] == '1' ? 'r' : '-'
     print user_type_binary[1] == '1' ? 'w' : '-'
-    if file_data.setuid? && idx.zero? # 複雑さが高すぎるので直すこと。
+    if file_data.setuid? && idx.zero?
       print user_type_binary[2] == '1' ? 's' : 'S'
     elsif file_data.setgid? && idx == 1
       print user_type_binary[2] == '1' ? 's' : 'S'
@@ -88,31 +91,11 @@ def display_file_permission(file_data, file_permission)
   end
 end
 
-def display_file_data(files, file_data)
-  linksize_width = find_links_bytesize(files).max + 2
-  filesize_width = find_files_bytesize(files).max + 2
-
-  print file_data.nlink.to_s.rjust(linksize_width)
-  print " #{Etc.getpwuid(file_data.uid).name}"
-  print "  #{Etc.getgrgid(file_data.gid).name}"
-  print file_data.size.to_s.rjust(filesize_width)
-  print file_data.mtime.strftime(' %_m %_d')
+def display_file_updated_time(file_data)
   if file_data.mtime.to_date < Date.today << 6
     print file_data.mtime.strftime('  %Y')
   else
     print file_data.mtime.strftime(' %H:%M')
-  end
-end
-
-def find_links_bytesize(files)
-  files.map do |file|
-    File::Stat.new(file).nlink.to_s.bytesize
-  end
-end
-
-def find_files_bytesize(files)
-  files.map do |file|
-    File::Stat.new(file).size.to_s.bytesize
   end
 end
 
