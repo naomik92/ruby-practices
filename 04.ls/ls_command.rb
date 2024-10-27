@@ -3,8 +3,7 @@
 
 require 'optparse'
 require 'etc'
-require 'Date'
-require 'time'
+require 'date'
 
 COL_COUNT = 3
 
@@ -51,7 +50,7 @@ def display_files_detail(files)
   file_blocks = files.map do |file|
     File::Stat.new(file).blocks
   end
-  print "total #{file_blocks.sum}\n"
+  puts "total #{file_blocks.sum}"
 
   files.each do |file|
     file_data = File::Stat.new(file)
@@ -61,56 +60,35 @@ def display_files_detail(files)
       format('%b', user_type_octal).rjust(3, '0').chars
     end
 
-    check_special_permission(file_data, file_permission)
     display_filetype(file_type)
-    display_file_permission(file_permission)
-    display_file_information(files, file_data)
-    print " #{file}\n"
-  end
-end
-
-def check_special_permission(file_data, permission)
-  if file_data.setuid?
-    permission[0][2] = (permission[0][2] == '1' ? 's' : 'S')
-  elsif file_data.setgid?
-    permission[1][2] = (permission[1][2] == '1' ? 's' : 'S')
-  elsif file_data.sticky?
-    permission[2][2] = (permission[2][2] == '1' ? 't' : 'T')
+    display_file_permission(file_data, file_permission)
+    display_file_data(files, file_data)
+    puts " #{file}"
   end
 end
 
 def display_filetype(file_type)
-  case file_type
-  when 'directory'
-    print 'd'
-  when 'characterSpecial'
-    print 'c'
-  when 'blockSpecial'
-    print 'b'
-  when 'fifo'
-    print 'p'
-  when 'link'
-    print 'l'
-  when 'socket'
-    print 's'
-  else
-    print '-'
-  end
+  file_type_character = { 'file' => '-', 'directory' => 'd', 'characterSpecail' => 'c', 'blockSpecial' => 'b', 'fifo' => 'p', 'link' => 'l', 'socket' => 's' }
+  print file_type_character[file_type] # 変数名の見直しが必要
 end
 
-def display_file_permission(file_permission)
-  file_permission.each do |user_type_binary|
+def display_file_permission(file_data, file_permission)
+  file_permission.each_with_index do |user_type_binary, idx|
     print user_type_binary[0] == '1' ? 'r' : '-'
     print user_type_binary[1] == '1' ? 'w' : '-'
-    if user_type_binary[2] != '1' && user_type_binary[2] != '0'
-      print user_type_binary[2]
+    if file_data.setuid? && idx.zero? # 複雑さが高すぎるので直すこと。
+      print user_type_binary[2] == '1' ? 's' : 'S'
+    elsif file_data.setgid? && idx == 1
+      print user_type_binary[2] == '1' ? 's' : 'S'
+    elsif file_data.sticky? && idx == 2
+      print user_type_binary[2] == '1' ? 't' : 'T'
     else
       print user_type_binary[2] == '1' ? 'x' : '-'
     end
   end
 end
 
-def display_file_information(files, file_data)
+def display_file_data(files, file_data)
   linksize_width = find_links_bytesize(files).max + 2
   filesize_width = find_files_bytesize(files).max + 2
 
@@ -118,12 +96,11 @@ def display_file_information(files, file_data)
   print " #{Etc.getpwuid(file_data.uid).name}"
   print "  #{Etc.getgrgid(file_data.gid).name}"
   print file_data.size.to_s.rjust(filesize_width)
-  print file_data.mtime.month.to_s.rjust(3)
-  print file_data.mtime.day.to_s.rjust(3)
-  if Time.parse(file_data.mtime.to_s).to_date < Date.today << 6
-    print file_data.mtime.year.to_s.rjust(6)
+  print file_data.mtime.strftime(' %_m %_d')
+  if file_data.mtime.to_date < Date.today << 6
+    print file_data.mtime.strftime('  %Y')
   else
-    print file_data.mtime.strftime('%H:%M').rjust(6)
+    print file_data.mtime.strftime(' %H:%M')
   end
 end
 
