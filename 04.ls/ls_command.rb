@@ -76,18 +76,10 @@ def display_file_permission(file_data)
   file_permission = file_mode[3, 3].chars.map do |user_type_octal|
     format('%b', user_type_octal).rjust(3, '0').chars
   end
-  file_permission.each_with_index do |user_type_binary, idx|
+  file_permission.each do |user_type_binary|
     print user_type_binary[0] == '1' ? 'r' : '-'
     print user_type_binary[1] == '1' ? 'w' : '-'
-    if file_data.setuid? && idx.zero?
-      print user_type_binary[2] == '1' ? 's' : 'S'
-    elsif file_data.setgid? && idx == 1
-      print user_type_binary[2] == '1' ? 's' : 'S'
-    elsif file_data.sticky? && idx == 2
-      print user_type_binary[2] == '1' ? 't' : 'T'
-    else
-      print user_type_binary[2] == '1' ? 'x' : '-'
-    end
+    print user_type_binary[2] == '1' ? 'x' : '-'
   end
 end
 
