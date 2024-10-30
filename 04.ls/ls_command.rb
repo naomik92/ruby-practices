@@ -15,6 +15,16 @@ FILE_TYPE_CHARACTER = {
   'link' => 'l',
   'socket' => 's'
 }.freeze
+FILE_PERMISSION = {
+  '0' => '---',
+  '1' => '--x',
+  '2' => '-w-',
+  '3' => '-wx',
+  '4' => 'r--',
+  '5' => 'r-x',
+  '6' => 'rw-',
+  '7' => 'rwx'
+}.freeze
 
 def main
   opt = OptionParser.new
@@ -59,44 +69,33 @@ def display_file_details(files)
   file_stats = files.to_h { |file| [file, File::Stat.new(file)] }
   linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize + 2
   filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
-  puts "total #{file_stats.values.sum(&:blocks)}"
 
-  file_stats.each do |file, file_stat|
-    print FILE_TYPE_CHARACTER[file_stat.ftype]
-    # display_file_permission(file_stat)
-
-    file_permissions(file_stat).each do |file_permission|
-      print file_permission[0] == '1' ? 'r' : '-'
-      print file_permission[1] == '1' ? 'w' : '-'
-      print file_permission[2] == '1' ? 'x' : '-'
-    end
-    print file_stat.nlink.to_s.rjust(linksize_width)
-    print " #{Etc.getpwuid(file_stat.uid).name}"
-    print "  #{Etc.getgrgid(file_stat.gid).name}"
-    print file_stat.size.to_s.rjust(filesize_width)
-    file_updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
-    print file_stat.mtime.strftime(" %_m %_d#{file_updated_time}")
-    puts " #{file}"
+  file_details = file_stats.map do |file, file_stat|
+    FILE_TYPE_CHARACTER[file_stat.ftype] +
+      file_permissions(file_stat) +
+      file_stat.nlink.to_s.rjust(linksize_width) +
+      user_and_group(file_stat) +
+      file_stat.size.to_s.rjust(filesize_width) +
+      file_updated_time(file_stat) +
+      " #{file}"
   end
-end
 
-# def display_file_permission(file_stat)
-#   file_mode = file_stat.mode.to_s(8).rjust(6, '0')
-#   file_permission = file_mode[3, 3].chars.map do |user_type_octal|
-#     format('%b', user_type_octal).rjust(3, '0').chars
-#   end
-#   file_permission.each do |user_type_binary|
-#     print user_type_binary[0] == '1' ? 'r' : '-'
-#     print user_type_binary[1] == '1' ? 'w' : '-'
-#     print user_type_binary[2] == '1' ? 'x' : '-'
-#   end
-# end
+  puts "total #{file_stats.values.sum(&:blocks)}"
+  print file_details.join("\n")
+end
 
 def file_permissions(file_stat)
   file_mode = file_stat.mode.to_s(8).rjust(6, '0')
-  file_mode[3, 3].chars.map do |user_type_octal|
-    format('%b', user_type_octal).rjust(3, '0').chars
-  end
+  file_mode[3, 3].chars.map { |user_type| FILE_PERMISSION[user_type] }.join
+end
+
+def user_and_group(file_stat)
+  " #{Etc.getpwuid(file_stat.uid).name}  #{Etc.getgrgid(file_stat.gid).name}"
+end
+
+def file_updated_time(file_stat)
+  updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
+  file_stat.mtime.strftime(" %_m %_d#{updated_time}")
 end
 
 main
