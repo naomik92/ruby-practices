@@ -61,36 +61,41 @@ def display_file_details(files)
   filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
   puts "total #{file_stats.values.sum(&:blocks)}"
 
-  file_stats.each do |file, file_data|
-    print FILE_TYPE_CHARACTER[file_data.ftype]
-    display_file_permission(file_data)
-    print file_data.nlink.to_s.rjust(linksize_width)
-    print " #{Etc.getpwuid(file_data.uid).name}"
-    print "  #{Etc.getgrgid(file_data.gid).name}"
-    print file_data.size.to_s.rjust(filesize_width)
-    print file_data.mtime.strftime(' %_m %_d')
-    display_file_updated_time(file_data)
+  file_stats.each do |file, file_stat|
+    print FILE_TYPE_CHARACTER[file_stat.ftype]
+    # display_file_permission(file_stat)
+
+    file_permissions(file_stat).each do |file_permission|
+      print file_permission[0] == '1' ? 'r' : '-'
+      print file_permission[1] == '1' ? 'w' : '-'
+      print file_permission[2] == '1' ? 'x' : '-'
+    end
+    print file_stat.nlink.to_s.rjust(linksize_width)
+    print " #{Etc.getpwuid(file_stat.uid).name}"
+    print "  #{Etc.getgrgid(file_stat.gid).name}"
+    print file_stat.size.to_s.rjust(filesize_width)
+    file_updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
+    print file_stat.mtime.strftime(" %_m %_d#{file_updated_time}")
     puts " #{file}"
   end
 end
 
-def display_file_permission(file_data)
-  file_mode = file_data.mode.to_s(8).rjust(6, '0')
-  file_permission = file_mode[3, 3].chars.map do |user_type_octal|
-    format('%b', user_type_octal).rjust(3, '0').chars
-  end
-  file_permission.each do |user_type_binary|
-    print user_type_binary[0] == '1' ? 'r' : '-'
-    print user_type_binary[1] == '1' ? 'w' : '-'
-    print user_type_binary[2] == '1' ? 'x' : '-'
-  end
-end
+# def display_file_permission(file_stat)
+#   file_mode = file_stat.mode.to_s(8).rjust(6, '0')
+#   file_permission = file_mode[3, 3].chars.map do |user_type_octal|
+#     format('%b', user_type_octal).rjust(3, '0').chars
+#   end
+#   file_permission.each do |user_type_binary|
+#     print user_type_binary[0] == '1' ? 'r' : '-'
+#     print user_type_binary[1] == '1' ? 'w' : '-'
+#     print user_type_binary[2] == '1' ? 'x' : '-'
+#   end
+# end
 
-def display_file_updated_time(file_data)
-  if file_data.mtime.to_date < Date.today << 6
-    print file_data.mtime.strftime('  %Y')
-  else
-    print file_data.mtime.strftime(' %H:%M')
+def file_permissions(file_stat)
+  file_mode = file_stat.mode.to_s(8).rjust(6, '0')
+  file_mode[3, 3].chars.map do |user_type_octal|
+    format('%b', user_type_octal).rjust(3, '0').chars
   end
 end
 
