@@ -6,6 +6,15 @@ require 'etc'
 require 'date'
 
 COL_COUNT = 3
+FILE_TYPE_CHARACTER = {
+  'file' => '-',
+  'directory' => 'd',
+  'characterSpecail' => 'c',
+  'blockSpecial' => 'b',
+  'fifo' => 'p',
+  'link' => 'l',
+  'socket' => 's'
+}.freeze
 
 def main
   opt = OptionParser.new
@@ -19,7 +28,7 @@ def main
   all_files = find_all_files
   visible_files = options[:a] ? all_files : select_visible_files(all_files)
   sorted_files = options[:r] ? visible_files.reverse : visible_files
-  options[:l] ? display_files_detail(sorted_files) : display_files(sorted_files)
+  options[:l] ? display_file_details(sorted_files) : display_files(sorted_files)
 end
 
 def find_all_files
@@ -46,15 +55,14 @@ def display_files(files)
   end
 end
 
-def display_files_detail(files)
-  files_data = files.map { |file| File::Stat.new(file) }
-  files_detail = Hash[files.zip(files_data)] # new
-  linksize_width = files_data.map(&:nlink).max.to_s.bytesize + 2
-  filesize_width = files_data.map(&:size).max.to_s.bytesize + 2
-  puts "total #{files_data.map(&:blocks).sum}"
+def display_file_details(files)
+  file_stats = files.to_h { |file| [file, File::Stat.new(file)] }
+  linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize + 2
+  filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
+  puts "total #{file_stats.values.sum(&:blocks)}"
 
-  files_detail.each do |file, file_data|
-    display_filetype(file_data)
+  file_stats.each do |file, file_data|
+    print FILE_TYPE_CHARACTER[file_data.ftype]
     display_file_permission(file_data)
     print file_data.nlink.to_s.rjust(linksize_width)
     print " #{Etc.getpwuid(file_data.uid).name}"
@@ -64,11 +72,6 @@ def display_files_detail(files)
     display_file_updated_time(file_data)
     puts " #{file}"
   end
-end
-
-def display_filetype(file_data)
-  file_type_character = { 'file' => '-', 'directory' => 'd', 'characterSpecail' => 'c', 'blockSpecial' => 'b', 'fifo' => 'p', 'link' => 'l', 'socket' => 's' }
-  print file_type_character[file_data.ftype]
 end
 
 def display_file_permission(file_data)
