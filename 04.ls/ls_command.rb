@@ -67,10 +67,16 @@ end
 
 def display_file_details(files)
   file_stats = files.to_h { |file| [file, File::Stat.new(file)] }
+
+  puts "total #{file_stats.values.sum(&:blocks)}"
+  print file_details(file_stats).join("\n")
+end
+
+def file_details(file_stats)
   linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize + 2
   filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
 
-  file_details = file_stats.map do |file, file_stat|
+  file_stats.map do |file, file_stat|
     FILE_TYPE_CHARACTER[file_stat.ftype] +
       file_permissions(file_stat) +
       file_stat.nlink.to_s.rjust(linksize_width) +
@@ -79,9 +85,6 @@ def display_file_details(files)
       file_updated_time(file_stat) +
       " #{file}"
   end
-
-  puts "total #{file_stats.values.sum(&:blocks)}"
-  print file_details.join("\n")
 end
 
 def file_permissions(file_stat)
