@@ -6,6 +6,7 @@ require 'etc'
 require 'date'
 
 COL_COUNT = 3
+
 FILE_TYPE_CHARACTER = {
   'file' => '-',
   'directory' => 'd',
@@ -15,6 +16,7 @@ FILE_TYPE_CHARACTER = {
   'link' => 'l',
   'socket' => 's'
 }.freeze
+
 FILE_PERMISSION = {
   '0' => '---',
   '1' => '--x',
@@ -69,34 +71,32 @@ def display_file_details(files)
   file_stats = files.to_h { |file| [file, File::Stat.new(file)] }
 
   puts "total #{file_stats.values.sum(&:blocks)}"
-  print file_details(file_stats).join("\n")
+  print find_file_details(file_stats).join("\n")
 end
 
-def file_details(file_stats)
+def find_file_details(file_stats)
   linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize + 2
   filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
 
   file_stats.map do |file, file_stat|
-    FILE_TYPE_CHARACTER[file_stat.ftype] +
-      file_permissions(file_stat) +
-      file_stat.nlink.to_s.rjust(linksize_width) +
-      user_and_group(file_stat) +
-      file_stat.size.to_s.rjust(filesize_width) +
-      file_updated_time(file_stat) +
-      " #{file}"
+    cols = []
+    cols << FILE_TYPE_CHARACTER[file_stat.ftype]
+    cols << convert_file_permissions(file_stat)
+    cols << file_stat.nlink.to_s.rjust(linksize_width)
+    cols << " #{Etc.getpwuid(file_stat.uid).name}  #{Etc.getgrgid(file_stat.gid).name}"
+    cols << file_stat.size.to_s.rjust(filesize_width)
+    cols << find_updated_time(file_stat)
+    cols << " #{file}"
+    cols.join
   end
 end
 
-def file_permissions(file_stat)
+def convert_file_permissions(file_stat)
   file_mode = file_stat.mode.to_s(8).rjust(6, '0')
   file_mode[3, 3].chars.map { |user_type| FILE_PERMISSION[user_type] }.join
 end
 
-def user_and_group(file_stat)
-  " #{Etc.getpwuid(file_stat.uid).name}  #{Etc.getgrgid(file_stat.gid).name}"
-end
-
-def file_updated_time(file_stat)
+def find_updated_time(file_stat)
   updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
   file_stat.mtime.strftime(" %_m %_d#{updated_time}")
 end
