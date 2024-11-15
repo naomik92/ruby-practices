@@ -75,18 +75,18 @@ def display_file_details(files)
 end
 
 def build_file_details_rows(file_stats)
-  linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize + 2
-  filesize_width = file_stats.values.map(&:size).max.to_s.bytesize + 2
+  linksize_width = file_stats.values.map(&:nlink).max.to_s.bytesize
+  filesize_width = file_stats.values.map(&:size).max.to_s.bytesize
 
   file_stats.map do |file, file_stat|
     cols = []
     cols << FILE_TYPE_CHARACTER[file_stat.ftype]
     cols << convert_file_permissions(file_stat)
-    cols << file_stat.nlink.to_s.rjust(linksize_width)
+    cols << "  #{file_stat.nlink.to_s.rjust(linksize_width)}"
     cols << " #{Etc.getpwuid(file_stat.uid).name}"
     cols << "  #{Etc.getgrgid(file_stat.gid).name}"
-    cols << file_stat.size.to_s.rjust(filesize_width)
-    cols << format_updated_time(file_stat)
+    cols << "  #{file_stat.size.to_s.rjust(filesize_width)}"
+    cols << " #{format_updated_time(file_stat)}"
     cols << " #{file}"
     cols.join
   end
@@ -99,7 +99,7 @@ end
 
 def format_updated_time(file_stat)
   updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
-  file_stat.mtime.strftime(" %_m %_d#{updated_time}")
+  file_stat.mtime.strftime("%_m %_d#{updated_time}")
 end
 
 main
