@@ -1,40 +1,44 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 def main
-  files = ARGV
-  display_count(files)
-end
+  opt = OptionParser.new
+  options = {}
+  opt.on('-l') { |v| options[:l] = v }
+  opt.on('-w') { |v| options[:w] = v }
+  opt.on('-c') { |v| options[:c] = v }
+  files = opt.parse!(ARGV)
 
-def display_count(files)
   file_reads = files.to_h { |file| [file, File.read(file)] }
-  # files.each do |file|
-  #   file_read = File.read(file)
-  #   puts build_all_count(file, file_read)
-  # end
-  print build_all_count(files, file_reads).join("\n")
+  print build_count(options, file_reads).join("\n")
 end
 
-def build_all_count(files, file_reads)
+def build_count(options, file_reads)
+  options = {:l=>true, :w=>true, :c=>true} if options == {} # 変数の再代入になっているかも
+
   lines_count_sum = file_reads.values.map { |value| value.lines.count }.sum
   words_count_sum = file_reads.values.map { |value| value.split(/\s+/).size }.sum
   bytesize_sum = file_reads.values.map { |value| value.size }.sum
 
   rows = file_reads.map do |file, file_read|
     cols = []
-    cols << "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}"
-    cols << "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}"
-    cols << "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}"
+    cols << (options[:l] ? "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" : "")
+    cols << (options[:w] ? "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" : "")
+    cols << (options[:c] ? "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" : "")
     cols << " #{file}"
     cols.join
   end
 
-  lastcols = []
-  lastcols << "     #{lines_count_sum}"
-  lastcols << "     #{words_count_sum}"
-  lastcols << "    #{bytesize_sum}"
-  lastcols << " total"
-  rows << lastcols.join
+  if file_reads.size > 1
+    lastcols = []
+    lastcols << (options[:l] ? "     #{lines_count_sum}" : "")
+    lastcols << (options[:w] ? "     #{words_count_sum}" : "")
+    lastcols << (options[:c] ? "    #{bytesize_sum}" : "")
+    lastcols << " total"
+    rows << lastcols.join
+  end
 end
 
 main
