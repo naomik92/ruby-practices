@@ -13,18 +13,18 @@ def main
   options = { l: true, w: true, c: true } if options == {}
   if ARGV.empty?
     input = $stdin.readlines
-    print build_input_count(input)
+    print build_input_count(options, input)
   else
     file_reads = files.to_h { |file| [file, File.read(file)] }
     print build_count(options, file_reads).join("\n")
   end
 end
 
-def build_input_count(input)
+def build_input_count(options, input)
   cols = []
-  cols << "     #{input.size}"
-  cols << "     #{input.join(' ').split(/\s+/).size}"
-  cols << "    #{input.join.bytesize}"
+  cols << "     #{input.size}" if options[:l]
+  cols << "     #{input.join(' ').split(/\s+/).size}" if options[:w]
+  cols << "    #{input.join.bytesize}" if options[:c]
   cols.join
 end
 
@@ -48,9 +48,9 @@ end
 def build_rows(options, lines_count_sum, words_count_sum, bytesize_sum, file_reads)
   file_reads.map do |file, file_read|
     cols = []
-    cols << (options[:l] ? "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" : '')
-    cols << (options[:w] ? "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" : '')
-    cols << (options[:c] ? "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" : '')
+    cols << "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" if options[:l]
+    cols << "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" if options[:w]
+    cols << "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" if options[:c]
     cols << " #{file}"
     cols.join
   end
