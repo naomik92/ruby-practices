@@ -9,6 +9,7 @@ def main
   opt.on('-l') { |v| options[:l] = v }
   opt.on('-w') { |v| options[:w] = v }
   opt.on('-c') { |v| options[:c] = v }
+  options = { l: true, w: true, c: true } if options == {}
   files = opt.parse!(ARGV)
   if ARGV.empty?
     input = $stdin.readlines
@@ -20,26 +21,23 @@ def main
 end
 
 def build_input_count(input)
-  # options = {:l=>true, :w=>true, :c=>true} if options == {} # 変数の再代入になっているかも
   cols = []
   cols << "     #{input.size}"
   cols << "     #{input.join(' ').split(/\s+/).size}"
-  cols << "    #{input.join(' ').bytesize}"
+  cols << "    #{input.join.bytesize}"
   cols.join
 end
 
 def build_count(options, file_reads)
-  options = { l: true, w: true, c: true } if options == {} # 変数の再代入になっているかも
-
   lines_count_sum = file_reads.values.map { |value| value.lines.count }.sum
   words_count_sum = file_reads.values.map { |value| value.split(/\s+/).size }.sum
   bytesize_sum = file_reads.values.map(&:size).sum
 
   rows = file_reads.map do |file, file_read|
     cols = []
-    cols << (options[:l] ? "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" : '')
-    cols << (options[:w] ? "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" : '')
-    cols << (options[:c] ? "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" : '')
+    cols << "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" if options[:l]
+    cols << "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" if options[:w]
+    cols << "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" if options[:c]
     cols << " #{file}"
     cols.join
   end
@@ -47,9 +45,9 @@ def build_count(options, file_reads)
   return rows unless file_reads.size > 1
 
   lastcols = []
-  lastcols << (options[:l] ? "     #{lines_count_sum}" : '')
-  lastcols << (options[:w] ? "     #{words_count_sum}" : '')
-  lastcols << (options[:c] ? "    #{bytesize_sum}" : '')
+  lastcols << "     #{lines_count_sum}" if options[:l]
+  lastcols << "     #{words_count_sum}" if options[:w]
+  lastcols << "    #{bytesize_sum}" if options[:c]
   lastcols << ' total'
   rows << lastcols.join
 end
