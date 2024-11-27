@@ -39,7 +39,7 @@ end
 def build_rows(options, input, col_width = 0, file = '', file_read = '')
   cols = []
   cols << "    #{input&.size || file_read.lines.count.to_s.rjust(col_width)}" if options[:l]
-  cols << "    #{input&.join(' ')&.split(/.\s+/)&.size || file_read.split(/.\s+/).size.to_s.rjust(col_width)}" if options[:w]
+  cols << "    #{(input&.join(' ') || file_read).split(/.\s+/).size.to_s.rjust(col_width)}" if options[:w]
   cols << "    #{input&.join&.bytesize || file_read.size.to_s.rjust(col_width)}" if options[:c]
   cols << " #{file}"
   cols.join
