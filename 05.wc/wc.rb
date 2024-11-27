@@ -23,19 +23,19 @@ end
 def build_input_count(options, input)
   cols = []
   cols << "     #{input.size}" if options[:l]
-  cols << "     #{input.join(' ').split(/\s+/).size}" if options[:w]
+  cols << "     #{input.join(' ').split(/.\s+/).size}" if options[:w]
   cols << "    #{input.join.bytesize}" if options[:c]
   cols.join
 end
 
 def build_count(options, file_reads)
   lines_count_sum = file_reads.values.map { |value| value.lines.count }.sum
-  words_count_sum = file_reads.values.map { |value| value.split(/\s+/).size }.sum
+  words_count_sum = file_reads.values.map { |value| value.split(/.\s+/).size }.sum
   bytesize_sum = file_reads.values.map(&:size).sum
 
   rows = build_rows(options, lines_count_sum, words_count_sum, bytesize_sum, file_reads)
 
-  return unless file_reads.size > 1
+  return rows unless file_reads.size > 1
 
   lastcols = []
   lastcols << "     #{lines_count_sum}" if options[:l]
@@ -49,7 +49,7 @@ def build_rows(options, lines_count_sum, words_count_sum, bytesize_sum, file_rea
   file_reads.map do |file, file_read|
     cols = []
     cols << "     #{file_read.lines.count.to_s.rjust(lines_count_sum.to_s.bytesize)}" if options[:l]
-    cols << "     #{file_read.split(/\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" if options[:w]
+    cols << "     #{file_read.split(/.\s+/).size.to_s.rjust(words_count_sum.to_s.bytesize)}" if options[:w]
     cols << "    #{file_read.size.to_s.rjust(bytesize_sum.to_s.bytesize)}" if options[:c]
     cols << " #{file}"
     cols.join
