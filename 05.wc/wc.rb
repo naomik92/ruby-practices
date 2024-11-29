@@ -19,36 +19,43 @@ def main
       files.to_h { |file| [file, File.read(file)] }
     end
 
-  print build_count(options, contents).join("\n")
+  print build_count(options, contents).join("\n") + "\n"
 end
 
 def build_count(options, contents)
-  lines_count_sum = contents.values.map { |value| value.lines.count }.sum
-  words_count_sum = contents.values.map { |value| value.split(/.\s+/).size }.sum
-  bytesize_sum = contents.values.map(&:size).sum
-  col_width = [lines_count_sum, words_count_sum, bytesize_sum].max.to_s.bytesize # 直すかも
+  counts = count_contents(contents)
+  col_width = [counts[:lines].sum, counts[:words].sum, counts[:chars].sum].max.to_s.bytesize
 
-  rows = build_rows(options, contents, col_width)
+  rows = build_rows(options, counts, col_width)
 
   return rows unless contents.size > 1
 
   lastcols = []
-  lastcols << "    #{lines_count_sum.to_s.rjust(col_width)}" if options[:l]
-  lastcols << "    #{words_count_sum.to_s.rjust(col_width)}" if options[:w]
-  lastcols << "    #{bytesize_sum.to_s.rjust(col_width)}" if options[:c]
+  lastcols << "    #{counts[:lines].sum.to_s.rjust(col_width)}" if options[:l]
+  lastcols << "    #{counts[:words].sum.to_s.rjust(col_width)}" if options[:w]
+  lastcols << "    #{counts[:chars].sum.to_s.rjust(col_width)}" if options[:c]
   lastcols << ' total'
   rows << lastcols.join
 end
 
-def build_rows(options, contents, col_width = 0)
-  contents.map do |file, content|
+def build_rows(options, counts, col_width = 0)
+  (0..counts[:lines].size - 1).map do |x|
     cols = []
-    cols << "    #{content.lines.count.to_s.rjust(col_width)}" if options[:l]
-    cols << "    #{content.split(/.\s+/).size.to_s.rjust(col_width)}" if options[:w]
-    cols << "    #{content.size.to_s.rjust(col_width)}" if options[:c]
-    cols << " #{file}"
+    cols << "    #{counts[:lines][x].to_s.rjust(col_width)}" if options[:l]
+    cols << "    #{counts[:words][x].to_s.rjust(col_width)}" if options[:w]
+    cols << "    #{counts[:chars][x].to_s.rjust(col_width)}" if options[:c]
+    cols << " #{counts[:files][x]}"
     cols.join
   end
+end
+
+def count_contents(contents)
+  {
+    lines: contents.values.map { |value| value.lines.count },
+    words: contents.values.map { |value| value.split(/.\s+/).size },
+    chars: contents.values.map(&:size),
+    files: contents.keys
+  }
 end
 
 main
