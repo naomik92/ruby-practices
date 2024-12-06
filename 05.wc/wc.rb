@@ -19,43 +19,48 @@ def main
       files.to_h { |file| [file, File.read(file)] }
     end
 
-  print "#{build_count(options, contents).join("\n")}\n"
+  puts "#{build_count(options, contents).join("\n")}"
 end
 
 def build_count(options, contents)
   counts = count_contents(contents)
-  col_width = [counts[:lines].sum, counts[:words].sum, counts[:chars].sum].max.to_s.bytesize
+  lines_count_sum = counts.sum { |h| h[:lines] }
+  words_count_sum = counts.sum { |h| h[:words] }
+  chars_count_sum = counts.sum { |h| h[:chars] }
+  col_width = [lines_count_sum, words_count_sum, chars_count_sum].max.to_s.bytesize
 
   rows = build_rows(options, counts, col_width)
 
-  return rows unless contents.size > 1
+  return rows if contents.size <= 1
 
   lastcols = []
-  lastcols << "    #{counts[:lines].sum.to_s.rjust(col_width)}" if options[:l]
-  lastcols << "    #{counts[:words].sum.to_s.rjust(col_width)}" if options[:w]
-  lastcols << "    #{counts[:chars].sum.to_s.rjust(col_width)}" if options[:c]
+  lastcols << "    #{lines_count_sum.to_s.rjust(col_width)}" if options[:l]
+  lastcols << "    #{words_count_sum.to_s.rjust(col_width)}" if options[:w]
+  lastcols << "    #{chars_count_sum.to_s.rjust(col_width)}" if options[:c]
   lastcols << ' total'
   rows << lastcols.join
 end
 
 def build_rows(options, counts, col_width = 0)
-  (0..counts[:lines].size - 1).map do |x|
+  counts.map do |count|
     cols = []
-    cols << "    #{counts[:lines][x].to_s.rjust(col_width)}" if options[:l]
-    cols << "    #{counts[:words][x].to_s.rjust(col_width)}" if options[:w]
-    cols << "    #{counts[:chars][x].to_s.rjust(col_width)}" if options[:c]
-    cols << " #{counts[:files][x]}"
+    cols << "    #{count[:lines].to_s.rjust(col_width)}" if options[:l]
+    cols << "    #{count[:words].to_s.rjust(col_width)}" if options[:w]
+    cols << "    #{count[:chars].to_s.rjust(col_width)}" if options[:c]
+    cols << " #{count[:filename]}"
     cols.join
   end
 end
 
 def count_contents(contents)
-  {
-    lines: contents.values.map { |value| value.lines.count },
-    words: contents.values.map { |value| value.split(/.\s+/).size },
-    chars: contents.values.map(&:size),
-    files: contents.keys
-  }
+  contents.map do |file_name, file_content|
+    {
+      filename: file_name,
+      lines: file_content.lines.count,
+      words: file_content.split(/.\s+/).size,
+      chars: file_content.size
+    }
+  end
 end
 
 main
