@@ -19,7 +19,7 @@ def main
       files.to_h { |file| [file, File.read(file)] }
     end
 
-  puts "#{build_count(options, contents).join("\n")}"
+  puts build_count(options, contents).join("\n")
 end
 
 def build_count(options, contents)
