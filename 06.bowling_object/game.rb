@@ -1,11 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-class Game
-  # scores = ARGV[0].split(',')
-  # puts point
-end
-
 class Shot
   attr_reader :marks
   def initialize(marks)
@@ -28,8 +23,8 @@ end
 
 class Frame
   attr_reader :shots
-  def initialize(shots)
-    @shots = shots
+  def initialize(marks)
+    @shots = Shot.new(marks).to_a
   end
 
   # 適当なメソッド名なので注意
@@ -38,15 +33,15 @@ class Frame
   end
 end
 
-class Point
+class Game
   STRIKE_SCORE = 10
 
   attr_reader :frames
-  def initialize(frames)
-    @frames = frames
+  def initialize(marks)
+    @frames = Frame.new(marks).divide
   end
 
-  def calculate
+  def calculate_point
     point = 0
     frames.each_with_index do |frame, idx|
       point += frame.sum
@@ -63,3 +58,7 @@ class Point
     point
   end
 end
+
+# marks = ARGV[0]
+# game = Game.new(marks)
+# puts game.calculate_point
