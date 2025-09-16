@@ -14,7 +14,7 @@ class Game
 
   def score
     initial_point = 0
-    self.calculate_score(initial_point)
+    calculate_score(initial_point)
   end
 
   private
