@@ -1,48 +1,25 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-class Shot
-  attr_reader :marks
-  def initialize(marks)
-    @marks = marks
-  end
-
-  def to_a
-    shots = []
-    marks.split(',').each do |m|
-      if m == 'X'
-        shots << 10
-        shots << 0
-      else
-        shots << m.to_i
-      end
-    end
-    shots
-  end
-end
-
-class Frame
-  attr_reader :shots
-  def initialize(marks)
-    @shots = Shot.new(marks).to_a
-  end
-
-  # 適当なメソッド名なので注意
-  def divide
-    shots.each_slice(2).to_a
-  end
-end
+require_relative 'frame'
 
 class Game
   STRIKE_SCORE = 10
 
   attr_reader :frames
+
   def initialize(marks)
-    @frames = Frame.new(marks).divide
+    @frames = Frame.new(marks).to_frames
   end
 
-  def calculate_point
-    point = 0
+  def score
+    initial_point = 0
+    self.calculate_score(initial_point)
+  end
+
+  private
+
+  def calculate_score(point)
     frames.each_with_index do |frame, idx|
       point += frame.sum
       if idx >= 9
@@ -59,6 +36,6 @@ class Game
   end
 end
 
-# marks = ARGV[0]
-# game = Game.new(marks)
-# puts game.calculate_point
+marks = ARGV[0]
+game = Game.new(marks)
+puts game.score
