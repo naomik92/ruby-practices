@@ -7,33 +7,39 @@ class Game
   STRIKE_SCORE = 10
 
   def initialize(marks)
-    @frames = Frame.new(marks).to_frames
+    @marks = marks
   end
 
-  def score
-    initial_point = 0
-    calculate_score(initial_point)
-  end
-
-  private
-
-  def calculate_score(point)
-    @frames.each_with_index do |frame, idx|
-      point += frame.sum
-      if idx >= 9
-        next
-      elsif frame[0] == STRIKE_SCORE && @frames[idx + 1][0] == STRIKE_SCORE
-        point += @frames[idx + 1][0] + @frames[idx + 2][0]
-      elsif frame[0] == STRIKE_SCORE
-        point += @frames[idx + 1][0] + @frames[idx + 1][1]
-      elsif frame.sum == 10
-        point += @frames[idx + 1][0]
+  # フレームを構築するメソッド
+  def build_frames
+    array = []
+    @marks.split(/,/).each do |m|
+      array << m
+      if m == 'X'
+        array << '0'
       end
     end
-    point
+    
+    array.each_slice(2).to_a.map do |a|
+      Frame.new(a)
+    end
+  end
+
+  # ゲームのスコアを算出するメソッド
+  def score
+    frames = build_frames
+    score = 0
+    frames.each_with_index do |frame, idx|
+      score += frame.score
+      if frames[idx - 1].first_shot_score == STRIKE_SCORE
+        score += frame.score
+      elsif frames[idx - 1].score == 10
+        score += frame.first_shot_score
+      end
+    end
+    score
   end
 end
 
-marks = ARGV[0]
-game = Game.new(marks)
-puts game.score
+game = Game.new('X,9,1,6,2')
+p game.score
