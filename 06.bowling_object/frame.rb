@@ -16,23 +16,20 @@ class Frame
     Shot.new(@frame[1]).score
   end
 
-  def third_shot_score
-    Shot.new(@frame[2]).score
-  end
-
+  # そもそもthird_shot_scoreは存在するのか。
   def score
+    third_shot_score = Shot.new(@frame[2]).score
     [first_shot_score + second_shot_score + third_shot_score].sum
   end
 
-  # ここにstrikeかspareを判定するメソッドを書いたらよいか。
-  # def strike?
-  #   @frame[0] == 'X'
-  # end
+  def strike?
+    first_shot_score == 10
+  end
 
-  # def spare
-  #   @first_shot
-  # end
+  def spare?
+    first_shot_score != 10 && first_shot_score + second_shot_score == 10
+  end
 end
 
-# arr = ['9', '2']
-# p Frame.new(arr).score
+arr = ['3', '3']
+p Frame.new(arr).score
