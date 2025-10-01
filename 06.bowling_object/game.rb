@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-
+require 'debug'
 require_relative 'frame'
 
 class Game
@@ -22,56 +22,50 @@ class Game
       end
     end
 
-    frames = []
+    marks_array = []
     array.each_with_index do |a, idx|
       if idx == 9
         break
       else
-        frames << a
+        marks_array << a
       end
     end
 
     if array.size == 12
-      frames << array[9] + array[10] + array[11]
+      marks_array << array[9] + array[10] + array[11]
     elsif array.size == 11
-      frames << array[9] + array[10]
+      marks_array << array[9] + array[10]
     else
-      frames << array[9]
+      marks_array << array[9]
     end
-    p frames
-    # after_frames = frames.map {}
+    
+    frames = marks_array.map do |marks|
+      shots = marks.map do |mark|
+        Shot.new(mark)
+      end
+      Frame.new(shots)
+    end
+
+    return Game.new(frames)
   end
 
-  # フレームを構築するメソッド
-#   def build_frames
-#     shots = []
-#     @marks.split(/,/).each do |m|
-#       shots << m
-#       if m == 'X'
-#         shots << '0'
-#       end
-#     end
-    
-#     shots.each_slice(2).to_a.map do |frame|
-#       Frame.new(frame)
-#     end
-#   end
-
-#   # ゲームのスコアを算出するメソッド
-#   def score
-#     frames = build_frames
-#     score = 0
-#     frames.each_with_index do |frame, idx|
-#       score += frame.score
-#       if frames[idx - 1].strike?
-#         score += frame.score
-#       elsif frames[idx - 1].spare?
-#         score += frame.first_shot_score
-#       end
-#     end
-#     score
-#   end
+  # ゲームのスコアを算出するインスタンスメソッド
+  def score
+    score = 0
+    @frames.each_with_index do |frame, idx|
+      score += frame.score
+      if idx > 8
+        break
+      elsif frame.strike?
+        score += @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
+      elsif frame.spare?
+        score += @frames[idx + 1].first_shot_score
+      end
+    end
+    score
+  end
 end
 
 game = Game.build_frames('6,3,9,0,0,3,8,2,7,3,X,9,1,8,0,X,X,1,8')
+p game.score
 # puts game.score

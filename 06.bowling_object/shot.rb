@@ -12,25 +12,3 @@ class Shot
 
     @mark.to_i
   end
-
-  # def to_s
-  #   @marks.map do |mark|
-  #     if mark == 'X'
-  #       mark == 10
-  #     end
-  #   end
-  # end
-
-  # def to_shots
-  #   shots = []
-  #   @marks.split(',').each do |m|
-  #     if m == 'X'
-  #       shots << 10
-  #       shots << 0
-  #     else
-  #       shots << m.to_i
-  #     end
-  #   end
-  #   shots
-  # end
-end
