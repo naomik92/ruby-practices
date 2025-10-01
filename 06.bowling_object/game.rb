@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-require 'debug'
+
 require_relative 'frame'
 
 class Game
@@ -9,7 +9,7 @@ class Game
   end
 
   def self.build_frames(marks)
-    devided_marks = marks.split(/,/).slice_after('X').to_a
+    devided_marks = marks.split(',').slice_after('X').to_a
 
     array = []
     devided_marks.each do |devided_mark|
@@ -24,29 +24,28 @@ class Game
 
     marks_array = []
     array.each_with_index do |a, idx|
-      if idx == 9
-        break
-      else
-        marks_array << a
-      end
+      break if idx == 9
+
+      marks_array << a
     end
 
-    if array.size == 12
-      marks_array << array[9] + array[10] + array[11]
-    elsif array.size == 11
-      marks_array << array[9] + array[10]
-    else
-      marks_array << array[9]
-    end
-    
-    frames = marks_array.map do |marks|
-      shots = marks.map do |mark|
+    marks_array <<
+      if array.size == 12
+        array[9] + array[10] + array[11]
+      elsif array.size == 11
+        array[9] + array[10]
+      else
+        array[9]
+      end
+
+    frames = marks_array.map do |m|
+      shots = m.map do |mark|
         Shot.new(mark)
       end
       Frame.new(shots)
     end
 
-    return Game.new(frames)
+    Game.new(frames)
   end
 
   # ゲームのスコアを算出するインスタンスメソッド
@@ -56,6 +55,13 @@ class Game
       score += frame.score
       if idx > 8
         break
+      elsif frame.strike? && @frames[idx + 1].strike?
+        score +=
+          if idx < 8
+            @frames[idx + 1].first_shot_score + @frames[idx + 2].first_shot_score
+          else
+            @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
+          end
       elsif frame.strike?
         score += @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
       elsif frame.spare?
@@ -65,7 +71,3 @@ class Game
     score
   end
 end
-
-game = Game.build_frames('6,3,9,0,0,3,8,2,7,3,X,9,1,8,0,X,X,1,8')
-p game.score
-# puts game.score

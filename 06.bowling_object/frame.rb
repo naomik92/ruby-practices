@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-require 'debug'
+
 require_relative 'shot'
 
 class Frame
@@ -16,9 +16,10 @@ class Frame
   end
 
   def second_shot_score
-    @second_shot.score
+    @second_shot.nil? ? 0 : @second_shot.score
   end
 
+  # リファクタリング可能
   def score
     if @second_shot.nil?
       @first_shot.score
@@ -30,17 +31,10 @@ class Frame
   end
 
   def strike?
-    @first_shot.score == 10
+    first_shot_score == 10
   end
 
   def spare?
-    @first_shot.score != 10 && @first_shot.score + @second_shot.score == 10
+    first_shot_score != 10 && first_shot_score + second_shot_score == 10
   end
 end
-
-# frame = ["7", "3"]
-# array = frame.map do |f|
-#   Shot.new(f)
-# end
-# p array
-
