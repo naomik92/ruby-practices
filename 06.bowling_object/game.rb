@@ -48,26 +48,41 @@ class Game
     Game.new(frames)
   end
 
-  # ゲームのスコアを算出するインスタンスメソッド
   def score
     score = 0
-    @frames.each_with_index do |frame, idx|
+    @frames.each do |frame|
       score += frame.score
-      if idx > 8
-        break
-      elsif frame.strike? && @frames[idx + 1].strike?
-        score +=
-          if idx < 8
-            @frames[idx + 1].first_shot_score + @frames[idx + 2].first_shot_score
-          else
-            @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
-          end
-      elsif frame.strike?
-        score += @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
-      elsif frame.spare?
-        score += @frames[idx + 1].first_shot_score
-      end
     end
     score
+  end
+
+  def strike_bonus
+    bonus_score = 0
+    @frames.each_with_index do |frame, idx|
+      if idx > 8
+        break
+      elsif idx < 8 && frame.strike? && @frames[idx + 1].strike?
+        bonus_score += @frames[idx + 1].first_shot_score + @frames[idx + 2].first_shot_score
+      elsif frame.strike?
+        bonus_score += @frames[idx + 1].first_shot_score + @frames[idx + 1].second_shot_score
+      end
+    end
+    bonus_score
+  end
+
+  def spare_bonus
+    bonus_score = 0
+    @frames.each_with_index do |frame, idx|
+      if idx > 8
+        break
+      elsif frame.spare?
+        bonus_score += @frames[idx + 1].first_shot_score
+      end
+    end
+    bonus_score
+  end
+
+  def total_score
+    score + strike_bonus + spare_bonus
   end
 end
