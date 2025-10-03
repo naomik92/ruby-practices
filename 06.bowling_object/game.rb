@@ -5,34 +5,37 @@ require_relative 'frame'
 
 class Game
   def initialize(frames)
-    @frames = frames
+    @frames =
+      frames.map do |frame|
+        shots = frame.map do |mark|
+          Shot.new(mark)
+        end
+        Frame.new(shots)
+      end
   end
 
   def self.build_frames(marks)
-    devided_marks = marks.split(',').slice_after('X').to_a
+    devided_marks_array = marks.split(',').slice_after('X').to_a
 
     array = []
-    devided_marks.each do |devided_mark|
-      if devided_mark.size > 2
-        devided_mark.each_slice(2).to_a.each do |m|
-          array << m
+    devided_marks_array.each do |devided_marks|
+      if devided_marks.size > 2
+        devided_marks.each_slice(2).to_a.each do |devided_mark_array|
+          array << devided_mark_array
         end
       else
-        array << devided_mark
+        array << devided_marks
       end
     end
 
-    marks_array = array[0..8] + [array[9..array.size - 1].flatten]
-
-    frames = marks_array.map do |m|
-      shots = m.map do |mark|
-        Shot.new(mark)
-      end
-      Frame.new(shots)
-    end
-
-    Game.new(frames)
+    array[0..8] + [array[9..array.size - 1].flatten]
   end
+
+  def total_score
+    score + strike_bonus + spare_bonus
+  end
+
+  private
 
   def score
     score = 0
@@ -66,9 +69,5 @@ class Game
       end
     end
     bonus_score
-  end
-
-  def total_score
-    score + strike_bonus + spare_bonus
   end
 end

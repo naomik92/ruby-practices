@@ -6,7 +6,6 @@ class Shot
     @mark = mark
   end
 
-  # ショットのmarkを取り出すメソッド
   def score
     return 10 if @mark == 'X'
 

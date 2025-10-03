@@ -5,10 +5,9 @@ require_relative 'shot'
 
 class Frame
   def initialize(shots)
-    @shots = shots # これ要る？
-    @first_shot = shots[0] # new
-    @second_shot = shots[1] # new
-    @third_shot = shots[2] # new
+    @first_shot = shots[0]
+    @second_shot = shots[1]
+    @third_shot = shots[2]
   end
 
   def first_shot_score
@@ -19,15 +18,12 @@ class Frame
     @second_shot.nil? ? 0 : @second_shot.score
   end
 
-  # リファクタリング可能
+  def third_shot_score
+    @third_shot.nil? ? 0 : @third_shot.score
+  end
+
   def score
-    if @second_shot.nil?
-      @first_shot.score
-    elsif @third_shot.nil?
-      [@first_shot.score, @second_shot.score].sum
-    else
-      [@first_shot.score, @second_shot.score, @third_shot.score].sum
-    end
+    [first_shot_score, second_shot_score, third_shot_score].sum
   end
 
   def strike?
