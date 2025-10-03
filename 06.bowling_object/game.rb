@@ -22,21 +22,7 @@ class Game
       end
     end
 
-    marks_array = []
-    array.each_with_index do |a, idx|
-      break if idx == 9
-
-      marks_array << a
-    end
-
-    marks_array <<
-      if array.size == 12
-        array[9] + array[10] + array[11]
-      elsif array.size == 11
-        array[9] + array[10]
-      else
-        array[9]
-      end
+    marks_array = array[0..8] + [array[9..array.size - 1].flatten]
 
     frames = marks_array.map do |m|
       shots = m.map do |mark|
