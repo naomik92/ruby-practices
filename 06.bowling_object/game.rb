@@ -5,13 +5,7 @@ require_relative 'frame'
 
 class Game
   def initialize(frames)
-    @frames =
-      frames.map do |frame|
-        shots = frame.map do |mark|
-          Shot.new(mark)
-        end
-        Frame.new(shots)
-      end
+    @frames = frames
   end
 
   def self.build_frames(marks)
@@ -28,7 +22,14 @@ class Game
       end
     end
 
-    array[0..8] + [array[9..array.size - 1].flatten]
+    frames = (array[0..8] + [array[9..array.size - 1].flatten]).map do |frame|
+      shots = frame.map do |mark|
+        Shot.new(mark)
+      end
+      Frame.new(shots)
+    end
+
+    Game.new(frames)
   end
 
   def total_score

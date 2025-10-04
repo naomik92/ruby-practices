@@ -3,6 +3,5 @@
 
 require_relative 'game'
 
-frames = Game.build_frames(ARGV[0])
-game = Game.new(frames)
+game = Game.build_frames(ARGV[0])
 p game.total_score
