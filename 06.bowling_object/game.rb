@@ -8,7 +8,7 @@ class Game
     @frames = frames
   end
 
-  def self.build_frames(marks)
+  def self.build_from_marks(marks)
     devided_marks_array = marks.split(',').slice_after('X').to_a
 
     array = []
@@ -22,8 +22,9 @@ class Game
       end
     end
 
-    frames = (array[0..8] + [array[9..array.size - 1].flatten]).map do |frame|
-      shots = frame.map do |mark|
+    last_marks_array = array.drop(9)
+    frames = (array[0..8] + [last_marks_array.flatten]).map do |marks_array|
+      shots = marks_array.map do |mark|
         Shot.new(mark)
       end
       Frame.new(shots)
@@ -39,11 +40,7 @@ class Game
   private
 
   def score
-    score = 0
-    @frames.each do |frame|
-      score += frame.score
-    end
-    score
+    @frames.sum(&:score)
   end
 
   def strike_bonus

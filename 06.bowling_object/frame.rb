@@ -15,11 +15,11 @@ class Frame
   end
 
   def second_shot_score
-    @second_shot.nil? ? 0 : @second_shot.score
+    @second_shot&.score || 0
   end
 
   def third_shot_score
-    @third_shot.nil? ? 0 : @third_shot.score
+    @third_shot&.score || 0
   end
 
   def score
@@ -31,6 +31,6 @@ class Frame
   end
 
   def spare?
-    first_shot_score != 10 && first_shot_score + second_shot_score == 10
+    !strike? && first_shot_score + second_shot_score == 10
   end
 end
