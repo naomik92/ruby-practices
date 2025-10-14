@@ -22,8 +22,7 @@ class Game
       end
     end
 
-    last_marks_array = array.drop(9)
-    frames = (array[0..8] + [last_marks_array.flatten]).map do |marks_array|
+    frames = (array[0..8] + [array[9..].flatten]).map do |marks_array|
       shots = marks_array.map do |mark|
         Shot.new(mark)
       end
