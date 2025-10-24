@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative 'filedetail'
+require_relative 'display_file_detail'
 
 files = Dir.entries('.').sort
 file_details = FileDetail.create_filedetails(files)
-p file_details.build_file_details
+data = DisplayFileDetail.new(file_details)
+data.display_rows
