@@ -27,13 +27,18 @@ class DisplayFileDetail
     '7' => 'rwx'
   }.freeze
 
-  def initialize(data_for_display)
-    @data_for_display = data_for_display
+  def initialize(file_details)
+    @file_details = file_details
   end
 
-  def build_rows
-    array = []
-    @data_for_display.each do |detail|
+  def select_and_sort_files(options)
+    visible_files = options[:a] ? @file_details : @file_details.reject { |file_detail| file_detail.filename.start_with?('.') }
+    options[:r] ? visible_files.reverse : visible_files
+  end
+
+  def build_rows(options)
+    rows = []
+    select_and_sort_files(options).each do |detail|
       cols = []
       cols << FILE_TYPE_CHARACTER[detail.file_stat.ftype]
       cols << convert_file_permissions(detail.file_stat)
@@ -43,23 +48,21 @@ class DisplayFileDetail
       cols << "  #{detail.file_stat.size.to_s.rjust(filesize_width)}"
       cols << " #{format_updated_time(detail.file_stat)}"
       cols << " #{detail.filename}"
-      array << cols
+      rows << cols
     end
-    array
+    rows
   end
 
-  def display_rows
-    build_rows.each do |row|
+  def display_rows(options)
+    build_rows(options).each do |row|
       puts row.join
     end
   end
-  
+
+  private
+
   def file_stats
-    array = []
-    @data_for_display.each do |detail|
-      array << detail.file_stat
-    end
-    array
+    @file_details.map(&:file_stat)
   end
 
   def linksize_width
