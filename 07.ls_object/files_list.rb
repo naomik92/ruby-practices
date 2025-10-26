@@ -5,7 +5,7 @@ require_relative 'file_detail'
 require 'etc'
 require 'date'
 
-class DisplayFileDetail
+class FilesList
   FILE_TYPE_CHARACTER = {
     'file' => '-',
     'directory' => 'd',
@@ -31,14 +31,9 @@ class DisplayFileDetail
     @file_details = file_details
   end
 
-  def select_and_sort_files(options)
-    visible_files = options[:a] ? @file_details : @file_details.reject { |file_detail| file_detail.filename.start_with?('.') }
-    options[:r] ? visible_files.reverse : visible_files
-  end
-
-  def build_rows(options)
+  def build_rows
     rows = []
-    select_and_sort_files(options).each do |detail|
+    @file_details.each do |detail|
       cols = []
       cols << FILE_TYPE_CHARACTER[detail.file_stat.ftype]
       cols << convert_file_permissions(detail.file_stat)
@@ -53,8 +48,8 @@ class DisplayFileDetail
     rows
   end
 
-  def display_rows(options)
-    build_rows(options).each do |row|
+  def display_list
+    build_rows.each do |row|
       puts row.join
     end
   end

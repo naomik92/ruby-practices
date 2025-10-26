@@ -8,7 +8,7 @@ class LsCommandOption
     @opt = OptionParser.new
   end
 
-  def options # Optionクラスにしたい
+  def options
     options = {}
     @opt.on('-a') { |v| options[:a] = v }
     @opt.on('-r') { |v| options[:r] = v }
