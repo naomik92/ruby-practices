@@ -23,11 +23,24 @@ class FilesTable
 
   def display_table
     build_table.each do |row|
-      array = []
+      cols = []
       row.each do |col|
-        array << col.filename
+        cols << col.filename
       end
-      p array
+      cols.each do |col|
+        print col.ljust(col_width + 5)
+      end
+      print "\n"
     end
+  end
+
+  private
+
+  def file_name
+    @file_details.map(&:filename)
+  end
+
+  def col_width
+    file_name.flatten.map(&:bytesize).max
   end
 end
