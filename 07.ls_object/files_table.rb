@@ -12,22 +12,18 @@ class FilesTable
 
   def build_table
     files =
-      if @file_details.size > COL_COUNT
-        @file_details.each_slice((@file_details.size + COL_COUNT - 1) / COL_COUNT).to_a
+      if file_names.size > COL_COUNT
+        file_names.each_slice((file_names.size + COL_COUNT - 1) / COL_COUNT).to_a
       else
-        @file_details
+        file_names
       end
     files.last << '' while files.last.length < files.first.length
     files.transpose
   end
 
   def display_table
-    build_table.each do |row|
-      cols = []
-      row.each do |col|
-        cols << col.filename
-      end
-      cols.each do |col|
+    build_table.each do |columns|
+      columns.each do |col|
         print col.ljust(col_width + 5)
       end
       print "\n"
@@ -36,11 +32,11 @@ class FilesTable
 
   private
 
-  def file_name
+  def file_names
     @file_details.map(&:filename)
   end
 
   def col_width
-    file_name.flatten.map(&:bytesize).max
+    file_names.flatten.map(&:bytesize).max
   end
 end

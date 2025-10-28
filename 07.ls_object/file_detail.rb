@@ -15,7 +15,7 @@ class FileDetail
       array = []
       array << file
       array << File::Stat.new(file)
-      file_stats << FileDetail.new(array[0], array[1]) # そもそもこうする意味ってあるのか？でも意味あるんだろうなあ
+      file_stats << FileDetail.new(array[0], array[1])
     end
     file_stats
   end
