@@ -17,12 +17,16 @@ class LsCommand
   end
 
   def build_files
-    options[:l] ? FilesList.new(sort_files).build_list : FilesTable.new(sort_files).build_table
+    options[:l] ? FilesList.new(sort_files).build_rows : FilesTable.new(sort_files).format_table
   end
 
   def display
-    options[:l] ? FilesList.new(sort_files).display_list : FilesTable.new(sort_files).display_table
+    build_files.each do |row|
+      puts row.join
+    end
   end
+
+  private
 
   def options
     opt = OptionParser.new

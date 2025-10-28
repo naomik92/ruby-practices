@@ -33,6 +33,7 @@ class FilesList
 
   def build_rows
     rows = []
+    rows << ["total #{file_stats.sum(&:blocks)}"]
     @file_details.each do |detail|
       cols = []
       cols << FILE_TYPE_CHARACTER[detail.file_stat.ftype]
@@ -46,12 +47,6 @@ class FilesList
       rows << cols
     end
     rows
-  end
-
-  def display_list
-    build_rows.each do |row|
-      puts row.join
-    end
   end
 
   private

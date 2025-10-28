@@ -21,12 +21,11 @@ class FilesTable
     files.transpose
   end
 
-  def display_table
-    build_table.each do |columns|
-      columns.each do |col|
-        print col.ljust(col_width + 5)
+  def format_table
+    build_table.map do |columns|
+      columns.map do |col|
+        col.ljust(col_width + 5)
       end
-      print "\n"
     end
   end
 
