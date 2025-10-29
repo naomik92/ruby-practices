@@ -5,7 +5,7 @@ require 'optparse'
 require_relative 'file_detail'
 require_relative 'files_list'
 require_relative 'files_table'
-require 'debug'
+
 class LsCommand
   def initialize(files, options = {})
     @file_details = FileDetail.create_file_details(files)
