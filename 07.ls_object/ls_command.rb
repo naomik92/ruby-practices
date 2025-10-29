@@ -5,10 +5,11 @@ require 'optparse'
 require_relative 'file_detail'
 require_relative 'files_list'
 require_relative 'files_table'
-
+require 'debug'
 class LsCommand
-  def initialize(files)
+  def initialize(files, options = {})
     @file_details = FileDetail.create_file_details(files)
+    @options = options
   end
 
   def sort_files
@@ -36,6 +37,7 @@ class LsCommand
     opt.on('-r') { |v| options[:r] = v }
     opt.on('-l') { |v| options[:l] = v }
     opt.parse(ARGV)
+    options = @options if @options != {}
     options
   end
 end
