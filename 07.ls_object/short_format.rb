@@ -3,7 +3,7 @@
 
 require_relative 'file_detail'
 
-class FilesTable
+class ShortFormat
   COL_COUNT = 3
 
   def initialize(file_details)

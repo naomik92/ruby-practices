@@ -5,7 +5,7 @@ require_relative 'file_detail'
 require 'etc'
 require 'date'
 
-class FilesList
+class LongFormat
   FILE_TYPE_CHARACTER = {
     'file' => '-',
     'directory' => 'd',
@@ -39,8 +39,8 @@ class FilesList
       cols << FILE_TYPE_CHARACTER[detail.file_stat.ftype]
       cols << convert_file_permissions(detail.file_stat)
       cols << "  #{detail.file_stat.nlink.to_s.rjust(linksize_width)}"
-      cols << " #{Etc.getpwuid(detail.file_stat.uid).name}"
-      cols << "  #{Etc.getgrgid(detail.file_stat.gid).name}"
+      cols << " #{Etc.getpwuid(detail.file_stat.uid).name.rjust(username_width)}"
+      cols << "  #{Etc.getgrgid(detail.file_stat.gid).name.rjust(groupname_width)}"
       cols << "  #{detail.file_stat.size.to_s.rjust(filesize_width)}"
       cols << " #{format_updated_time(detail.file_stat)}"
       cols << " #{detail.filename}"
@@ -57,6 +57,14 @@ class FilesList
 
   def linksize_width
     file_stats.map(&:nlink).max.to_s.bytesize
+  end
+
+  def username_width
+    file_stats.map { |file_stat| Etc.getpwuid(file_stat.uid).name }.max.to_s.bytesize
+  end
+
+  def groupname_width
+    file_stats.map { |file_stat| Etc.getgrgid(file_stat.gid).name }.max.to_s.bytesize
   end
 
   def filesize_width

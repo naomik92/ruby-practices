@@ -3,8 +3,8 @@
 
 require 'optparse'
 require_relative 'file_detail'
-require_relative 'files_list'
-require_relative 'files_table'
+require_relative 'long_format'
+require_relative 'short_format'
 
 class LsCommand
   def initialize(files, options = {})
@@ -18,7 +18,7 @@ class LsCommand
   end
 
   def build_files
-    options[:l] ? FilesList.new(sort_files).build_rows : FilesTable.new(sort_files).format_table
+    options[:l] ? LongFormat.new(sort_files).build_rows : ShortFormat.new(sort_files).format_table
   end
 
   def display
