@@ -7,8 +7,8 @@ require_relative 'long_format'
 require_relative 'short_format'
 
 class LsCommand
-  def initialize(files, options = {})
-    @file_details = FileDetail.create_file_details(files)
+  def initialize(file_names, options = {})
+    @file_details = FileDetail.create_file_details(file_names)
     @options = options
   end
 
@@ -17,12 +17,14 @@ class LsCommand
     options[:r] ? visible_files.reverse : visible_files
   end
 
-  def build_files
-    options[:l] ? LongFormat.new(sort_files).build_rows : ShortFormat.new(sort_files).format_table
+  def format
+    # options[:l] ? LongFormat.new(sort_files).build_rows : ShortFormat.new(sort_files).format_table
+    format_klass = options[:l] ? LongFormat : ShortFormat
+    format_klass.new(sort_files).build_format
   end
 
   def display
-    build_files.each do |row|
+    format.each do |row|
       puts row.join
     end
   end

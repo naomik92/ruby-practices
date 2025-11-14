@@ -30,15 +30,18 @@ class FileDetail
     @file_stat = file_stat
   end
 
-  def self.create_file_details(files)
-    file_stats = []
-    files.each do |file|
-      array = []
-      array << file
-      array << File::Stat.new(file)
-      file_stats << FileDetail.new(array[0], array[1])
+  def self.create_file_details(file_names)
+    # file_stats = []
+    # files.each do |file|
+    #   array = []
+    #   array << file
+    #   array << File::Stat.new(file)
+    #   file_stats << FileDetail.new(array[0], array[1])
+    # end
+    # file_stats
+    file_names.map do |file_name|
+      FileDetail.new(file_name, File::Stat.new(file_name))
     end
-    file_stats
   end
 
   def file_type_character

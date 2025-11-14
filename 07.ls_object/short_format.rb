@@ -21,7 +21,7 @@ class ShortFormat
     files.transpose
   end
 
-  def format_table
+  def build_format
     build_table.map do |columns|
       columns.map do |col|
         col.ljust(col_width + 5)

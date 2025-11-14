@@ -10,7 +10,7 @@ class LongFormat
     @file_details = file_details
   end
 
-  def build_rows
+  def build_format
     rows = []
     rows << ["total #{file_stats.sum(&:blocks)}"]
     @file_details.each do |detail|
