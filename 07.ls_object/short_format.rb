@@ -32,7 +32,7 @@ class ShortFormat
   private
 
   def file_names
-    @file_details.map(&:filename)
+    @file_names ||= @file_details.map(&:filename)
   end
 
   def col_width
