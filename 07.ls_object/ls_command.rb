@@ -18,7 +18,6 @@ class LsCommand
   end
 
   def format
-    # options[:l] ? LongFormat.new(sort_files).build_rows : ShortFormat.new(sort_files).format_table
     format_klass = options[:l] ? LongFormat : ShortFormat
     format_klass.new(sort_files).build_format
   end
