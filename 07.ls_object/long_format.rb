@@ -2,8 +2,6 @@
 # frozen_string_literal: true
 
 require_relative 'file_detail'
-require 'etc'
-require 'date'
 
 class LongFormat
   def initialize(file_details)
@@ -18,10 +16,10 @@ class LongFormat
       cols << detail.file_type_character
       cols << detail.file_permission
       cols << "  #{detail.file_stat.nlink.to_s.rjust(linksize_width)}"
-      cols << " #{Etc.getpwuid(detail.file_stat.uid).name.rjust(username_width)}"
-      cols << "  #{Etc.getgrgid(detail.file_stat.gid).name.rjust(groupname_width)}"
+      cols << " #{detail.user_name.rjust(username_width)}"
+      cols << "  #{detail.group_name.rjust(groupname_width)}"
       cols << "  #{detail.file_stat.size.to_s.rjust(filesize_width)}"
-      cols << " #{format_updated_time(detail.file_stat)}"
+      cols << " #{detail.format_updated_time}"
       cols << " #{detail.filename}"
       rows << cols
     end
@@ -48,10 +46,5 @@ class LongFormat
 
   def filesize_width
     file_stats.map(&:size).max.to_s.bytesize
-  end
-
-  def format_updated_time(file_stat)
-    updated_time = file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
-    file_stat.mtime.strftime("%_m %_d#{updated_time}")
   end
 end

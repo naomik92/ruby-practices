@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'etc'
+require 'date'
+
 class FileDetail
   FILE_TYPE_CHARACTER = {
     'file' => '-',
@@ -31,14 +34,6 @@ class FileDetail
   end
 
   def self.create_file_details(file_names)
-    # file_stats = []
-    # files.each do |file|
-    #   array = []
-    #   array << file
-    #   array << File::Stat.new(file)
-    #   file_stats << FileDetail.new(array[0], array[1])
-    # end
-    # file_stats
     file_names.map do |file_name|
       FileDetail.new(file_name, File::Stat.new(file_name))
     end
@@ -51,5 +46,18 @@ class FileDetail
   def file_permission
     file_mode = @file_stat.mode.to_s(8).rjust(6, '0')
     file_mode[3, 3].chars.map { |user_type| FILE_PERMISSION[user_type] }.join
+  end
+
+  def user_name
+    Etc.getpwuid(@file_stat.uid).name
+  end
+
+  def group_name
+    Etc.getgrgid(@file_stat.gid).name
+  end
+
+  def format_updated_time
+    updated_time = @file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
+    @file_stat.mtime.strftime("%_m %_d#{updated_time}")
   end
 end
