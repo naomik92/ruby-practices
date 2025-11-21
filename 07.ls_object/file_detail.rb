@@ -26,16 +26,16 @@ class FileDetail
     '7' => 'rwx'
   }.freeze
 
-  attr_reader :filename, :file_stat
+  attr_reader :file_name, :file_stat
 
-  def initialize(filename, file_stat)
-    @filename = filename
+  def initialize(file_name, file_stat)
+    @file_name = file_name
     @file_stat = file_stat
   end
 
   def self.create_file_details(file_names)
-    file_names.map do |file_name|
-      FileDetail.new(file_name, File::Stat.new(file_name))
+    file_names.map do |filename|
+      FileDetail.new(filename, File::Stat.new(filename))
     end
   end
 
@@ -48,6 +48,10 @@ class FileDetail
     file_mode[3, 3].chars.map { |user_type| FILE_PERMISSION[user_type] }.join
   end
 
+  def hardlink_size
+    @file_stat.nlink.to_s
+  end
+
   def user_name
     Etc.getpwuid(@file_stat.uid).name
   end
@@ -56,8 +60,12 @@ class FileDetail
     Etc.getgrgid(@file_stat.gid).name
   end
 
-  def format_updated_time
-    updated_time = @file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
-    @file_stat.mtime.strftime("%_m %_d#{updated_time}")
+  def file_size
+    @file_stat.size.to_s
+  end
+
+  def updated_time
+    updated_year_or_time = @file_stat.mtime.to_date < Date.today << 6 ? '  %Y' : ' %H:%M'
+    @file_stat.mtime.strftime("%_m %_d#{updated_year_or_time}")
   end
 end

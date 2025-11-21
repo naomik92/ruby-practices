@@ -13,7 +13,7 @@ class LsCommand
   end
 
   def sort_files
-    visible_files = options[:a] ? @file_details : @file_details.reject { |file_detail| file_detail.filename.start_with?('.') }
+    visible_files = options[:a] ? @file_details : @file_details.reject { |file_detail| file_detail.file_name.start_with?('.') }
     options[:r] ? visible_files.reverse : visible_files
   end
 

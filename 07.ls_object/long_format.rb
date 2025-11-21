@@ -15,12 +15,12 @@ class LongFormat
       cols = []
       cols << detail.file_type_character
       cols << detail.file_permission
-      cols << "  #{detail.file_stat.nlink.to_s.rjust(linksize_width)}"
+      cols << "  #{detail.hardlink_size.rjust(linksize_width)}"
       cols << " #{detail.user_name.rjust(username_width)}"
       cols << "  #{detail.group_name.rjust(groupname_width)}"
-      cols << "  #{detail.file_stat.size.to_s.rjust(filesize_width)}"
-      cols << " #{detail.format_updated_time}"
-      cols << " #{detail.filename}"
+      cols << "  #{detail.file_size.rjust(filesize_width)}"
+      cols << " #{detail.updated_time}"
+      cols << " #{detail.file_name}"
       rows << cols
     end
     rows
