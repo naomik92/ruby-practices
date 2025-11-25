@@ -10,15 +10,15 @@ class LongFormat
 
   def build_format
     rows = []
-    rows << ["total #{file_stats.sum(&:blocks)}"]
+    rows << ["total #{@file_details.sum(&:file_blocks)}"]
     @file_details.each do |detail|
       cols = []
       cols << detail.file_type_character
       cols << detail.file_permission
-      cols << "  #{detail.hardlink_size.rjust(linksize_width)}"
+      cols << "  #{detail.hardlink_size.to_s.rjust(linksize_width)}"
       cols << " #{detail.user_name.rjust(username_width)}"
       cols << "  #{detail.group_name.rjust(groupname_width)}"
-      cols << "  #{detail.file_size.rjust(filesize_width)}"
+      cols << "  #{detail.file_size.to_s.rjust(filesize_width)}"
       cols << " #{detail.updated_time}"
       cols << " #{detail.file_name}"
       rows << cols
@@ -28,23 +28,19 @@ class LongFormat
 
   private
 
-  def file_stats
-    @file_details.map(&:file_stat)
-  end
-
   def linksize_width
-    file_stats.map(&:nlink).max.to_s.bytesize
+    @file_details.map(&:hardlink_size).max.to_s.bytesize
   end
 
   def username_width
-    file_stats.map { |file_stat| Etc.getpwuid(file_stat.uid).name }.max.to_s.bytesize
+    @file_details.map(&:user_name).max.to_s.bytesize
   end
 
   def groupname_width
-    file_stats.map { |file_stat| Etc.getgrgid(file_stat.gid).name }.max.to_s.bytesize
+    @file_details.map(&:group_name).max.to_s.bytesize
   end
 
   def filesize_width
-    file_stats.map(&:size).max.to_s.bytesize
+    @file_details.map(&:file_size).max.to_s.bytesize
   end
 end

@@ -26,7 +26,7 @@ class FileDetail
     '7' => 'rwx'
   }.freeze
 
-  attr_reader :file_name, :file_stat
+  attr_reader :file_name
 
   def initialize(file_name, file_stat)
     @file_name = file_name
@@ -39,6 +39,10 @@ class FileDetail
     end
   end
 
+  def file_blocks
+    @file_stat.blocks
+  end
+
   def file_type_character
     FILE_TYPE_CHARACTER[@file_stat.ftype]
   end
@@ -49,7 +53,7 @@ class FileDetail
   end
 
   def hardlink_size
-    @file_stat.nlink.to_s
+    @file_stat.nlink
   end
 
   def user_name
@@ -61,7 +65,7 @@ class FileDetail
   end
 
   def file_size
-    @file_stat.size.to_s
+    @file_stat.size
   end
 
   def updated_time
