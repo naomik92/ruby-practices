@@ -16,8 +16,8 @@ class LongFormat
       cols << detail.file_type_character
       cols << detail.file_permission
       cols << "  #{detail.hardlink_size.to_s.rjust(linksize_width)}"
-      cols << " #{detail.user_name.rjust(username_width)}"
-      cols << "  #{detail.group_name.rjust(groupname_width)}"
+      cols << " #{detail.user_name.ljust(username_width)}"
+      cols << "  #{detail.group_name.ljust(groupname_width)}"
       cols << "  #{detail.file_size.to_s.rjust(filesize_width)}"
       cols << " #{detail.updated_time}"
       cols << " #{detail.file_name}"
