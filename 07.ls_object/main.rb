@@ -4,4 +4,4 @@
 require_relative 'ls_command'
 
 file_names = Dir.entries('.').sort
-LsCommand.new(file_names).display
+LsCommand.new(file_names).main

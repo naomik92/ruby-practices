@@ -12,18 +12,24 @@ class LsCommand
     @options = options
   end
 
+  def main
+    sorted_files = sort_files
+    formatted_files = format(sorted_files)
+    display(formatted_files)
+  end
+
   def sort_files
     visible_files = options[:a] ? @file_details : @file_details.reject { |file_detail| file_detail.file_name.start_with?('.') }
     options[:r] ? visible_files.reverse : visible_files
   end
 
-  def format
+  def format(sorted_files)
     format_klass = options[:l] ? LongFormat : ShortFormat
-    format_klass.new(sort_files).build_format
+    format_klass.new(sorted_files).build_format
   end
 
-  def display
-    format.each do |row|
+  def display(formatted_files)
+    formatted_files.each do |row|
       puts row.join
     end
   end
